@@ -25,7 +25,7 @@
 - 进入官网：[MySQL :: MySQL Connectors](https://www.mysql.com/products/connector/)
 - 或者直接点击**JDBC 5.1**下载地址：[(70条消息) csdn - 安全中心](https://link.csdn.net/?target=https%3A%2F%2Fdev.mysql.com%2Fget%2FDownloads%2FConnector-J%2Fmysql-connector-java-5.1.48.zip)
 
-注：与Mysql版本对应（**在Android Studio上目前只能安装mysql5的版本**，所以JDBC也需要下载**对应的版本**）
+注：与Mysql版本对应（**在Android Studio上目前只能安装mysql5的版本**，所以JDBC也需要下载对应的版本）
 
 
 
