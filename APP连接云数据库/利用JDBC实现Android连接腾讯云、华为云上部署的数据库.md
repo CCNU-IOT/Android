@@ -1,0 +1,321 @@
+### 利用JDBC实现Android连接腾讯云/华为云上部署的数据库
+
+【注】：华为云和腾讯云连接唯一的区别就是IP和数据库名不一样
+
+【关于JDBC】：
+
+  JDBC（Java Data Base Connectivity，java数据库连接）是一种用于执行SQL语句的Java API，能够为多种关系数据库提供统一访问，它由一组用Java语言编写的类和接口组成。JDBC为数据库开发者提供了一个标准的API，据此能够构建更高级的工具和接口，使数据库开发者能够用纯 Java API 编写数据库应用程序，而且可跨平台执行，而且不受数据库供应商的限制。
+
+【参考教程】（该教程较为简略，但大致思路可以参考）：
+
+[(70条消息) android studio连接腾讯云mysql数据库_melissa12345的博客-CSDN博客](https://blog.csdn.net/melissa12345/article/details/104723829#:~:text=android studio连接腾讯云mysql数据库 1,1.Linux云服务器访问：https%3A%2F%2Fcloud.tencent.com%2Fdocument%2Fproduct%2F236%2F3130 2 2.Android访问MySql数据库实例：我当时在这篇文章中下载gethib中的文件，并连接自己的云服务器测试，思路就更加清晰了)
+
+[JDBC连接MySQL数据库及演示样例-腾讯云开发者社区-腾讯云 (tencent.com)](https://cloud.tencent.com/developer/article/2047481)
+
+[(70条消息) Java连接mysql数据库方法及代码（jdbc）_jdbc连接数据库_先养只猫的博客-CSDN博客](https://blog.csdn.net/qq_52050769/article/details/118095034)
+
+[(70条消息) Android访问MySql数据库实例 回帖 Android Studio连接MySQL云端数据库_wjsay的博客-CSDN博客](https://blog.csdn.net/baisedeqingting/article/details/80031272)
+
+[(70条消息) Android studio连接mysql(能踩的坑都踩了)_android studio mysql_黑名单 2841703718的博客-CSDN博客](https://blog.csdn.net/qq_57424643/article/details/123971663)
+
+【具体教程】：
+
+##### 1.下载Mysql对应的JDBC包
+
+- 进入官网：[MySQL :: MySQL Connectors](https://www.mysql.com/products/connector/)
+- 或者直接点击**JDBC 5.1**下载地址：[(70条消息) csdn - 安全中心](https://link.csdn.net/?target=https%3A%2F%2Fdev.mysql.com%2Fget%2FDownloads%2FConnector-J%2Fmysql-connector-java-5.1.48.zip)
+
+注：与Mysql版本对应（**在Android Studio上目前只能安装mysql5的版本**，所以JDBC也需要下载对应的版本）
+
+
+
+##### 2.下载完成后解压文件，并将.jar文件（我这里是`mysql-connector-j-5.1.48.jar`）复制到Android Studio的app/libs目录下
+
+<img src="https://raw.githubusercontent.com/fograinwater/PicGo-img/master/image-20230703081539280.png" alt="image-20230703081539280" style="zoom: 70%;" />
+
+- 注：需要在Project视图下才能看到`libs`文件夹
+
+<img src="https://raw.githubusercontent.com/fograinwater/PicGo-img/master/image-20230703081732970.png" alt="image-20230703081732970" style="zoom:80%;" />
+
+
+
+##### 3.配置依赖文件：选择File—>Project Structure
+
+-  点击`Dependencies` ==> 选择`Modules`中的`app` —> 点击`Declared Dependency`中的`+` ==>选择`2 JAR/AAR Dependency`
+
+<img src="https://raw.githubusercontent.com/fograinwater/PicGo-img/master/image-20230702101842130.png" alt="image-20230702101842130" style="zoom:60%;" />
+
+- 将刚刚添加的.jar包的路径写入，点击`OK`
+
+<img src="https://raw.githubusercontent.com/fograinwater/PicGo-img/master/image-20230703081851326.png" alt="image-20230703081851326" style="zoom: 60%;" />
+
+- 然后就可以看见刚刚添加的.jar包。点击`OK`
+
+<img src="https://raw.githubusercontent.com/fograinwater/PicGo-img/master/image-20230703081919346.png" alt="image-20230703081919346" style="zoom:60%;" />
+
+
+
+##### 4.点击`File`—> `Sync Project with Gradle Files `，实现与Gradle文件的同步
+
+
+
+##### 5.为应用程序添加访问网络的权限，即在`AndroidManifest.xml`文件中添加以下权限声明：
+
+注：`AndroidManifest.xml`文件需要打开Project视图，在路径app\src\main\AndroidManifest.xml下
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+
+
+##### 6.添加`DBConnection`类，用于连接数据库
+
+按照实际修改以下几个地方：
+
+- `package`名：为activity所在的包名
+- `Class.forName("com.mysql.jdbc.Driver")`用于在Java程序中载入驱动程序
+  - Class.forName(“指定数据库的驱动程序”)” 方式来载入数据库到开发环境中的驱动程序
+  - 比如载入MySQL的数据驱动程序的代码为：  Class.forName(“com.mysql.jdbc.Driver”)
+- `user`：数据库登录的用户名
+- `password`：数据库登录的用户密码
+- `dbname`：所连接的数据库名
+- `ip`：数据库所在的服务器公网IP
+- `url`：协议名+IP地址([域名](https://cloud.tencent.com/act/pro/domain-sales?from=20065&from_column=20065))+port+数据库名称。username和password是指登录数据库时所使用的username和password
+- `port`：端口号
+- `connection = DriverManager.getConnection(url, user, password)`：通过DriverManager类创建数据库连接对象Connection，这里会根据`url`、`user`和`password`的修改而变动
+
+注：连接数据库的费时操作不能在主线程中完成，需要单开一个子线程
+
+
+
+##### 7.`DBConnection.java`文件
+
+```java
+package com.example.myapplication2;
+
+import android.util.Log;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+
+public class DBConnection {
+    private static final String TAG = "===MysqlConnection===";
+    public static void link () {
+        //设置IP/端口/数据库名/用户名/密码等必要的连接信息
+        String ip = "120.46.64.136";
+        int port = 3306;
+        String dbName = "prairietraveler";
+        String url = "jdbc:mysql://" + ip + ":" + port
+                + "/" + dbName+"?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC";
+        //连接数据库使用的用户名
+        String user = "root";
+        //连接的数据库时使用的密码
+        String password = "omtomc.123";
+
+        Connection connection=null;
+        PreparedStatement pstmt = null;
+
+        try {
+            //1、加载驱动
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            System.out.println("驱动加载成功！！！");
+            Log.d(TAG, "驱动加载成功!");
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            Log.d(TAG, "驱动加载失败!");
+        }
+
+        try {
+            //2、获取与数据库的连接
+            connection = DriverManager.getConnection(url, user, password);
+            System.out.println("连接数据库成功！！！");
+            Log.d(TAG, "连接数据库成功!");
+
+            //3.sql语句
+            String sql = "insert into user (user_name, password) values (?, ?)";
+
+            //4.获取并执行用于向数据库发送sql语句的pstmt
+            pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, "tinh");
+            pstmt.setString(2,"2021214111");
+            pstmt.executeUpdate();
+        }catch (SQLException se) {
+            Log.d(TAG, "连接数据库失败1!");
+            se.printStackTrace();
+        }finally {
+            //5.释放资源
+            if(pstmt != null){
+                try {
+                    pstmt.close();
+                }catch (SQLException se){
+                    se.printStackTrace();
+                }
+            }
+            if (connection != null){
+                try {
+                    connection.close();
+                }catch (SQLException se){
+                    se.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+
+
+
+##### 8.`MainActivity.java`文件
+
+```java
+package com.example.myapplication2;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //数据库连接：不能在主线程中连接
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                DBConnection.link();
+            }
+        }).start();
+
+    }
+}
+```
+
+
+
+##### 9.`activity_main.xml`文件
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+
+
+##### 10.`AndroidManifest.xml`文件
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MyApplication2"
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:targetApi="31">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+```
+
+
+
+##### 11.连接时可能遇到的一些错误
+
+1.网络请求出错：
+
+```
+ No Network Security Config specified, using platform default
+```
+
+[(72条消息) 网络请求出现：No Network Security Config specified, using platform default_啊詹詹詹詹的博客-CSDN博客](https://blog.csdn.net/qq_35502206/article/details/107272151)
+
+2.数据库配置（时区调整）：
+
+```
+com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException
+```
+
+- 原因分析：【[(84条消息) 连接mysql报“com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException”的错误解决_PostgreSQL运维技术的博客-CSDN博客](https://blog.csdn.net/qq_35462323/article/details/106398779)】
+- 解决办法：修改`mysql`时区【[(84条消息) MySql修改时区的三种方法_forever_up422的博客-CSDN博客](https://blog.csdn.net/forever_up422/article/details/122949139)】
+
+
+
+
+##### 12.【附】：
+
+##### 通过创建Statement对象并调用Statement对象的相关方法可以执行SQL 语句
+
+[(70条消息) JDBC连接数据库的七个步骤（超详细）_故明所以的博客-CSDN博客](https://blog.csdn.net/weixin_43520450/article/details/107230205)
+
+- Statement 类主要是用于运行静态 SQL 语句并返回它所生成结果的对象
+- 通过 Connection 对象的 createStatement() 方法能够创建一个Statement对象，比如：
+
+```java
+Statement statament = connection.createStatement();
+```
+
+- 调用Statement对象的方法执行SQL，返回结果集。比如下面执行查询语句：
+
+```java
+String sql = "SELECT *FROM studentinfo;";
+ResultSet resultSet = statement.executeQuery(sql);
+```
+
+还可以调用execuUpdate()方法用来数据的更新，包含建表、插入和删除等操作，比如向staff表中插入一条数据的代码：
+
+```java
+ statement.excuteUpdate( “INSERT INTO staff(name, age, sex,address, depart, worklen,wage)” + ” VALUES (‘Tom1’, 321, ‘M’, ‘china’,’Personnel’,’3′,’3000′ ) “) ; 
+```
+
+
+
+##### 使用PreparedStatement和CreateStatement的区别
+
+[(72条消息) 浅谈 JDBC 中 CreateStatement 和 PrepareStatement 的区别与优劣。_createpreparedstmt jdbc_狂野程序员的博客-CSDN博客](https://blog.csdn.net/u011161786/article/details/48394751)
+
+
+
+https://blog.csdn.net/qq_35462323/article/details/106398779)
