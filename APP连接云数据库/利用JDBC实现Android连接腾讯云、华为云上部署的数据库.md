@@ -12,7 +12,7 @@
 
 [JDBC连接MySQL数据库及演示样例-腾讯云开发者社区-腾讯云 (tencent.com)](https://cloud.tencent.com/developer/article/2047481)
 
-[(70条消息) Java连接mysql数据库方法及代码（jdbc）_jdbc连接数据库_先养只猫的博客-CSDN博客](https://blog.csdn.net/qq_52050769/article/details/118095034)
+[Java连接mysql数据库方法及代码（jdbc）_jdbc连接数据库_先养只猫的博客-CSDN博客](https://blog.csdn.net/qq_52050769/article/details/118095034)
 
 [(70条消息) Android访问MySql数据库实例 回帖 Android Studio连接MySQL云端数据库_wjsay的博客-CSDN博客](https://blog.csdn.net/baisedeqingting/article/details/80031272)
 
@@ -25,7 +25,7 @@
 - 进入官网：[MySQL :: MySQL Connectors](https://www.mysql.com/products/connector/)
 - 或者直接点击**JDBC 5.1**下载地址：[(70条消息) csdn - 安全中心](https://link.csdn.net/?target=https%3A%2F%2Fdev.mysql.com%2Fget%2FDownloads%2FConnector-J%2Fmysql-connector-java-5.1.48.zip)
 
-注：与Mysql版本对应（**在Android Studio上目前只能安装mysql5的版本**，所以JDBC也需要下载对应的版本）
+注：与Mysql版本对应（**在Android Studio上目前只能安装mysql5的版本**，所以JDBC也需要下载**对应的版本**）
 
 
 
